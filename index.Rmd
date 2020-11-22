@@ -114,7 +114,7 @@ leaflet() %>%
     group = "Teselas importantes",
     title = "Importancia"
   ) %>%    
-  addPolygons(
+  addPolylines(
     data = sf_rutas,
     color = "Green",
     stroke = TRUE,
