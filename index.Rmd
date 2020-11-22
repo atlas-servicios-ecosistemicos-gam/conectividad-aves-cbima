@@ -1,37 +1,52 @@
 ---
-title: "Modelos de conectividad de grupos funcionales de aves en el CMIMA"
+title: "Mapa de conectividad de grupos de funcionales de aves dependientes de bosque en el CBIMA"
 output: 
   flexdashboard::flex_dashboard:
-    storyboard: true
+    orientation: rows
     social: menu
-    source: embed
+    source_code: embed
+    vertical_layout: fill
 ---
 
 ```{r setup, include=FALSE}
 #-------------------- Paquetes --------------------
+
 library(flexdashboard)
 library(dplyr)
 library(sf)
 library(leaflet)
 library(esri2sf)
+
 #--------------- URL de geoservicios --------------
+
 url_agfs_bosque_bripario <-
-  "https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_parches_esenciales_importantes_bosque_bripario/FeatureServer/0"
+  "https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_conectividad_parches_esenciales_importantes_bosque_ma/FeatureServer/0"
 url_agfs_limite_gam <-
   "https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_limite_gam/FeatureServer/0"
+url_agfs_limite_cbima <-
+  "https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_limite_cbi_maria_aguilar/FeatureServer/0"
+
 #---------------------- Datos ---------------------
+
 # Objetos sf
 # Bosque y bosque ribereño
 sf_bosque_bripario <- esri2sf(url_agfs_bosque_bripario)
 # Límite de la GAM
 sf_limite_gam <- esri2sf(url_agfs_limite_gam)
+# Límite del CBIMA
+sf_limite_cbima <- esri2sf(url_agfs_limite_cbima)
+
 #---------------- Paletas de colores ---------------
-# Paletas de colores
+
 pal_bosque_bripario_d_PC <- 
-  colorNumeric(
+  colorQuantile(
     palette = "Blues", 
-    domain = sf_bosque_bripario$d_PC
+    domain = sf_bosque_bripario$d_PC,
+    n = 5
   )
+pal_bosque_bripario_d_PC_colors <- 
+  unique(pal_bosque_bripario_d_PC(sort(sf_bosque_bripario$d_PC)))
+
 pal_bosque_bripario_IF <- 
   colorNumeric(
     palette = "Blues", 
@@ -39,21 +54,31 @@ pal_bosque_bripario_IF <-
   )
 ```
 
-### Bosque y bosque ribereño
+Row
+-----------------------------------------------------------------------
 
+### Mapa
 ```{r}
 leaflet() %>%
-  setView(-84, 9.95, 10) %>%
+  #fitBounds(
+  #  st_bbox(sf_limite_cbima)["xmin"], st_bbox(sf_limite_cbima)["ymin"], 
+  #  st_bbox(sf_limite_cbima)["xmax"], st_bbox(sf_limite_cbima)["ymax"], 
+  #) %>%    
+  #fitBounds(
+  #  -84.11961, 9.907672, 
+  #  -83.97383, 9.94576, 
+  #) %>%
+  setView((-84.11961 + -83.97383)/2, (9.907672 + 9.94576)/2, 13) %>%
   addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
   addProviderTiles(providers$Stamen, group = "Stamen") %>%
   addProviderTiles(providers$Esri.WorldImagery, group = "Imágenes de ESRI") %>%
   addPolygons(
-    data = sf_limite_gam,
-    fillOpacity = 0.3,
+    data = sf_limite_cbima,
+    color = "Purple",
+    fillColor = "transparent",
     stroke = TRUE,
-    weight = 0.5,
-    smoothFactor = 0.2,
-    group = "Límite de la GAM"
+    weight = 6.0,
+    group = "Límite del CBIMA"
   ) %>%
   addPolygons(
     data = sf_bosque_bripario,
@@ -63,13 +88,13 @@ leaflet() %>%
     fillColor = ~pal_bosque_bripario_d_PC(d_PC),
     weight = 0.3,
     smoothFactor = 0.2,
-    group = "Parches esenciales"
+    group = "Teselas esenciales"
   ) %>%
   addLegend(
     position = "bottomright",
-    pal=pal_bosque_bripario_d_PC,
-    values = sf_bosque_bripario$d_PC, 
-    group = "Parches esenciales",
+    colors = pal_bosque_bripario_d_PC_colors,
+    labels = c("1", "2", "3", "4", "5"),
+    group = "Teselas esenciales",
     title = "Esencialidad"
   ) %>%    
   addPolygons(
@@ -91,7 +116,7 @@ leaflet() %>%
   ) %>%    
   addLayersControl(
     baseGroups = c("OpenStreetMap", "Stamen", "Imágenes de ESRI"),
-    overlayGroups = c("Límite de la GAM", "Parches esenciales", "Parches importantes"),
+    overlayGroups = c("Límite del CBIMA", "Teselas esenciales", "Parches importantes"),
     options = layersControlOptions(collapsed = TRUE)    
   ) %>%  
   addMiniMap(
@@ -103,13 +128,6 @@ leaflet() %>%
     position = "bottomleft",
     options = scaleBarOptions(imperial = FALSE)
   ) %>%
-  hideGroup("Parches esenciales") %>%
+  #hideGroup("Teselas esenciales") %>%
   hideGroup("Parches importantes")
 ```
-
-***
-**Direcciones de los geoservicios**
-
-[Parches esenciales](https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_parches_esenciales_importantes_bosque_bripario/FeatureServer/0)  
-
-[Parches importantes](https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_parches_esenciales_importantes_bosque_bripario/FeatureServer/0)
