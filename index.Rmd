@@ -1,5 +1,5 @@
 ---
-title: "Mapa de conectividad de grupos de funcionales de aves dependientes de bosque en el CBIMA"
+title: "Mapa de conectividad de grupos funcionales de aves dependientes de bosque en el CBIMA"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
@@ -17,61 +17,58 @@ library(esri2sf)
 
 #--------------- URL de geoservicios --------------
 
-url_agfs_bosque_bripario <-
+url_agfs_teselas <-
   "https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_conectividad_parches_esenciales_importantes_bosque_ma/FeatureServer/0"
-url_agfs_limite_gam <-
-  "https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_limite_gam/FeatureServer/0"
+url_agfs_rutas <-
+  "https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_conectividad_rutas_conectividad_bosque_ma/FeatureServer/0"
 url_agfs_limite_cbima <-
   "https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_limite_cbi_maria_aguilar/FeatureServer/0"
 
-#---------------------- Datos ---------------------
+#-------------------- Objetos sf -------------------
 
-# Objetos sf
-# Bosque y bosque ribereño
-sf_bosque_bripario <- esri2sf(url_agfs_bosque_bripario)
-# Límite de la GAM
-sf_limite_gam <- esri2sf(url_agfs_limite_gam)
+# Teselas
+sf_teselas <- esri2sf(url_agfs_teselas)
+# Rutas de conectividad
+sf_rutas <- esri2sf(url_agfs_rutas)
 # Límite del CBIMA
 sf_limite_cbima <- esri2sf(url_agfs_limite_cbima)
 
 #---------------- Paletas de colores ---------------
 
-pal_bosque_bripario_d_PC <- 
-  colorQuantile(
+# Esencialidad
+bins_esencialidad <- c(0, 0.0005081, 0.0017842, 0.0029771, 0.0410884, Inf)
+labels_esencialidad <- c("Menor", "", "", "", "Mayor")
+pal_esencialidad <- 
+  colorBin(
+    bins = bins_esencialidad,
     palette = "Blues", 
-    domain = sf_bosque_bripario$d_PC,
-    n = 5
+    domain = sf_teselas$d_PC,
+    n = 5,
   )
-pal_bosque_bripario_d_PC_colors <- 
-  unique(pal_bosque_bripario_d_PC(sort(sf_bosque_bripario$d_PC)))
 
-pal_bosque_bripario_IF <- 
-  colorQuantile(
+# Importancia
+bins_importancia <- c(0, 76691858553.50, 419391934883.00, 1873763551120.00, 9206246262880.00, Inf)
+labels_importancia <- c("Menor", "", "", "", "Mayor")
+pal_importancia <- 
+  colorBin(
+    bins = bins_importancia,
     palette = "Blues", 
-    domain = sf_bosque_bripario$IF_,
-    n = 5
+    domain = sf_teselas$IF_,
+    n = 5,
   )
-pal_bosque_bripario_IF_colors <- 
-  unique(pal_bosque_bripario_IF(sort(sf_bosque_bripario$IF_)))
+
 ```
 
 Row
 -----------------------------------------------------------------------
 
-### Servicios web: [Teselas esenciales e importantes](https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_conectividad_parches_esenciales_importantes_bripario/FeatureServer)
+### Servicios web: [Teselas esenciales e importantes](https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_conectividad_parches_esenciales_importantes_bripario/FeatureServer), [Rutas de conectividad](https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_conectividad_rutas_conectividad_bosque_ma/FeatureServer)
 ```{r}
 leaflet() %>%
-  #fitBounds(
-  #  st_bbox(sf_limite_cbima)["xmin"], st_bbox(sf_limite_cbima)["ymin"], 
-  #  st_bbox(sf_limite_cbima)["xmax"], st_bbox(sf_limite_cbima)["ymax"], 
-  #) %>%    
-  #fitBounds(
-  #  -84.11961, 9.907672, 
-  #  -83.97383, 9.94576, 
-  #) %>%
   setView((-84.11961 + -83.97383)/2, (9.907672 + 9.94576)/2, 13) %>%
   addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
-  addProviderTiles(providers$Stamen, group = "Stamen") %>%
+  addProviderTiles(providers$Stamen.TonerLite, group = "Stamen Toner Lite") %>%
+  addProviderTiles(providers$CartoDB.DarkMatter, group = "CartoDB Dark Matter") %>%
   addProviderTiles(providers$Esri.WorldImagery, group = "Imágenes de ESRI") %>%
   addPolygons(
     data = sf_limite_cbima,
@@ -82,40 +79,51 @@ leaflet() %>%
     group = "Límite del CBIMA"
   ) %>%
   addPolygons(
-    data = sf_bosque_bripario,
+    data = sf_teselas,
     fillOpacity = 0.9,
     stroke = TRUE,
-    color = ~pal_bosque_bripario_d_PC(d_PC),
-    fillColor = ~pal_bosque_bripario_d_PC(d_PC),
+    color = ~pal_esencialidad(d_PC),
+    fillColor = ~pal_esencialidad(d_PC),
     weight = 0.5,
+    smoothFactor = 1.0,
     group = "Teselas esenciales"
   ) %>%
   addLegend(
     position = "bottomright",
-    colors = pal_bosque_bripario_d_PC_colors,
-    labels = c("1", "2", "3", "4", "5"),
+    pal = pal_esencialidad,
+    values = sf_teselas$d_PC,
+    labFormat = function(type, cuts, p) {paste0(labels_esencialidad)},
     group = "Teselas esenciales",
     title = "Esencialidad"
   ) %>%    
   addPolygons(
-    data = sf_bosque_bripario,
+    data = sf_teselas,
     fillOpacity = 0.9,
     stroke = TRUE,
-    color = ~pal_bosque_bripario_IF(IF_),
-    fillColor = ~pal_bosque_bripario_IF(IF_),
+    color = ~pal_importancia(IF_),
+    fillColor = ~pal_importancia(IF_),
     weight = 0.5,
+    smoothFactor = 1.0,
     group = "Teselas importantes"
   ) %>%
   addLegend(
     position = "bottomright",
-    colors = pal_bosque_bripario_IF_colors,
-    labels = c("1", "2", "3", "4", "5"),
+    pal = pal_importancia,
+    values = sf_teselas$IF_,
+    labFormat = function(type, cuts, p) {paste0(labels_importancia)},
     group = "Teselas importantes",
     title = "Importancia"
   ) %>%    
+  addPolygons(
+    data = sf_rutas,
+    color = "Green",
+    stroke = TRUE,
+    weight = 1.5,
+    group = "Rutas de conectividad"
+  ) %>%
   addLayersControl(
-    baseGroups = c("OpenStreetMap", "Stamen", "Imágenes de ESRI"),
-    overlayGroups = c("Límite del CBIMA", "Teselas esenciales", "Teselas importantes"),
+    baseGroups = c("OpenStreetMap", "Stamen Toner Lite", "CartoDB Dark Matter", "Imágenes de ESRI"),
+    overlayGroups = c("Límite del CBIMA", "Teselas esenciales", "Teselas importantes", "Rutas de conectividad"),
     options = layersControlOptions(collapsed = TRUE)    
   ) %>%  
   addMiniMap(
@@ -128,5 +136,6 @@ leaflet() %>%
     options = scaleBarOptions(imperial = FALSE)
   ) %>%
   hideGroup("Teselas esenciales") %>%
-  hideGroup("Teselas importantes")
+  hideGroup("Teselas importantes") %>%
+  hideGroup("Rutas de conectividad")
 ```
