@@ -86,6 +86,12 @@ leaflet() %>%
     fillColor = ~pal_esencialidad(d_PC),
     weight = 0.5,
     smoothFactor = 1.0,
+    popup = paste(
+              "<strong>Tesela esencial</strong><br>", 
+              "Id:", sf_teselas$Id, 
+              "<br>", 
+              "Esencialidad:", sf_teselas$d_PC
+            ),
     group = "Teselas esenciales"
   ) %>%
   addLegend(
@@ -104,6 +110,12 @@ leaflet() %>%
     fillColor = ~pal_importancia(IF_),
     weight = 0.5,
     smoothFactor = 1.0,
+    popup = paste(
+              "<strong>Tesela importante</strong><br>", 
+              "Id:", sf_teselas$Id, 
+              "<br>", 
+              "Importancia:", sf_teselas$IF_
+            ),
     group = "Teselas importantes"
   ) %>%
   addLegend(
@@ -120,6 +132,12 @@ leaflet() %>%
     fillColor = "transparent",
     stroke = TRUE,
     weight = 1.5,
+    popup = paste(
+              "<strong>Ruta de conectividad</strong><br>", 
+              "Id:", sf_rutas$Id, 
+              "<br>", 
+              "Esencialidad:", sf_rutas$d_PC
+            ),
     group = "Rutas de conectividad"
   ) %>%
   addLayersControl(
