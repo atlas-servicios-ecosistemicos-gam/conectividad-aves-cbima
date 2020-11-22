@@ -117,6 +117,7 @@ leaflet() %>%
   addPolylines(
     data = sf_rutas,
     color = "Green",
+    fillColor = "transparent",
     stroke = TRUE,
     weight = 1.5,
     group = "Rutas de conectividad"
