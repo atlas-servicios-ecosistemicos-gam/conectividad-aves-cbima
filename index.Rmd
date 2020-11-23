@@ -37,7 +37,7 @@ sf_limite_cbima <- esri2sf(url_agfs_limite_cbima)
 
 # Esencialidad
 bins_esencialidad <- c(0, 0.0005081, 0.0017842, 0.0029771, 0.0410884, Inf)
-labels_esencialidad <- c("Menor", "", "", "", "Mayor")
+labels_esencialidad <- c("Muy poco esencial", "Poco esencial", "Medianamente esencial", "Esencial", "Altamente esencial")
 pal_esencialidad <- 
   colorBin(
     bins = bins_esencialidad,
@@ -48,7 +48,7 @@ pal_esencialidad <-
 
 # Importancia
 bins_importancia <- c(0, 76691858553.50, 419391934883.00, 1873763551120.00, 9206246262880.00, Inf)
-labels_importancia <- c("Menor", "", "", "", "Mayor")
+labels_importancia <- c("Muy baja importancia", "Importancia baja", "Importancia media", "Alta importancia", "Muy alta importancia")
 pal_importancia <- 
   colorBin(
     bins = bins_importancia,
@@ -66,9 +66,9 @@ Row
 ```{r}
 leaflet() %>%
   setView((-84.11961 + -83.97383)/2, (9.907672 + 9.94576)/2, 13) %>%
+  addProviderTiles(providers$CartoDB.DarkMatter, group = "CartoDB Dark Matter") %>%
   addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
   addProviderTiles(providers$Stamen.TonerLite, group = "Stamen Toner Lite") %>%
-  addProviderTiles(providers$CartoDB.DarkMatter, group = "CartoDB Dark Matter") %>%
   addProviderTiles(providers$Esri.WorldImagery, group = "Imágenes de ESRI") %>%
   addPolygons(
     data = sf_limite_cbima,
@@ -141,7 +141,7 @@ leaflet() %>%
     group = "Rutas de conectividad"
   ) %>%
   addLayersControl(
-    baseGroups = c("OpenStreetMap", "Stamen Toner Lite", "CartoDB Dark Matter", "Imágenes de ESRI"),
+    baseGroups = c("CartoDB Dark Matter", "OpenStreetMap", "Stamen Toner Lite", "Imágenes de ESRI"),
     overlayGroups = c("Límite del CBIMA", "Teselas esenciales", "Teselas importantes", "Rutas de conectividad"),
     options = layersControlOptions(collapsed = TRUE)    
   ) %>%  
@@ -154,7 +154,7 @@ leaflet() %>%
     position = "bottomleft",
     options = scaleBarOptions(imperial = FALSE)
   ) %>%
-  hideGroup("Teselas esenciales") %>%
+  #hideGroup("Teselas esenciales") %>%
   hideGroup("Teselas importantes") %>%
   hideGroup("Rutas de conectividad")
 ```
