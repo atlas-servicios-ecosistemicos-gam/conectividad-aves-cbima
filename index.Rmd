@@ -60,7 +60,7 @@ sf_rutas <-
 
 # Esencialidad
 bins_esencialidad <- c(0, 0.0005081, 0.0017842, 0.0029771, 0.0410884, Inf)
-labels_esencialidad <- c("Muy poco esencial", "Poco esencial", "Medianamente esencial", "Esencial", "Altamente esencial")
+etiquetas_esencialidad <- c("Muy poco esencial", "Poco esencial", "Medianamente esencial", "Esencial", "Altamente esencial")
 pal_esencialidad <- 
   colorBin(
     bins = bins_esencialidad,
@@ -71,7 +71,7 @@ pal_esencialidad <-
 
 # Importancia
 bins_importancia <- c(0, 76691858553.50, 419391934883.00, 1873763551120.00, 9206246262880.00, Inf)
-labels_importancia <- c("Muy baja importancia", "Importancia baja", "Importancia media", "Alta importancia", "Muy alta importancia")
+etiquetas_importancia <- c("Muy baja importancia", "Importancia baja", "Importancia media", "Alta importancia", "Muy alta importancia")
 pal_importancia <- 
   colorBin(
     bins = bins_importancia,
@@ -134,19 +134,13 @@ leaflet() %>%
     color = "Black",
     fillColor = ~pal_esencialidad(d_PC),
     weight = 1,
-    popup = paste(
-              "<strong>Tesela esencial</strong><br>", 
-              "Id:", sf_teselas$Id, 
-              "<br>", 
-              "Esencialidad:", sf_teselas$d_PC
-            ),
     group = "Teselas esenciales"
   ) %>%
   addLegend(
     position = "bottomright",
     pal = pal_esencialidad,
     values = sf_teselas$d_PC,
-    labFormat = function(type, cuts, p) {paste0(labels_esencialidad)},
+    labFormat = function(type, cuts, p) {paste0(etiquetas_esencialidad)},
     group = "Teselas esenciales",
     title = "Esencialidad"
   ) %>%    
@@ -157,19 +151,13 @@ leaflet() %>%
     color = "Black",
     fillColor = ~pal_importancia(IF_),
     weight = 1,
-    popup = paste(
-              "<strong>Tesela importante</strong><br>", 
-              "Id:", sf_teselas$Id, 
-              "<br>", 
-              "Importancia:", sf_teselas$IF_
-            ),
     group = "Teselas importantes"
   ) %>%
   addLegend(
     position = "bottomright",
     pal = pal_importancia,
     values = sf_teselas$IF_,
-    labFormat = function(type, cuts, p) {paste0(labels_importancia)},
+    labFormat = function(type, cuts, p) {paste0(etiquetas_importancia)},
     group = "Teselas importantes",
     title = "Importancia"
   ) %>%    
@@ -179,12 +167,6 @@ leaflet() %>%
     fillColor = "transparent",
     stroke = TRUE,
     weight = 1.5,
-    popup = paste(
-              "<strong>Ruta de conectividad</strong><br>", 
-              "Id:", sf_rutas$Id, 
-              "<br>", 
-              "Esencialidad:", sf_rutas$d_PC
-            ),
     group = "Rutas de conectividad"
   ) %>%
   addLayersControl(
