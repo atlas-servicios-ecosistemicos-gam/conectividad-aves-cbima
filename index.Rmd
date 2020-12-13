@@ -1,5 +1,5 @@
 ---
-title: "Mapa de conectividad de grupos funcionales de aves dependientes de bosque en el CBIMA"
+title: "Mapa de conectividad de grupos funcionales de aves dependientes de bosque en el Corredor Biológico Interurbano María Aguilar"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
@@ -62,7 +62,7 @@ pal_importancia <-
 Row
 -----------------------------------------------------------------------
 
-### Servicios web: [Teselas esenciales e importantes](https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_conectividad_parches_esenciales_importantes_bripario/FeatureServer), [Rutas de conectividad](https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_conectividad_rutas_conectividad_bosque_ma/FeatureServer)
+### Geoservicios: [Teselas esenciales e importantes](https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_conectividad_parches_esenciales_importantes_bripario/FeatureServer), [Rutas de conectividad](https://services9.arcgis.com/RrvMEynxDB8hycVO/arcgis/rest/services/gam_conectividad_rutas_conectividad_bosque_ma/FeatureServer)
 ```{r}
 leaflet() %>%
   setView((-84.11961 + -83.97383)/2, (9.907672 + 9.94576)/2, 13) %>%
